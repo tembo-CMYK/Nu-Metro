@@ -1,0 +1,6 @@
+{
+  "name": "Nu Metro - Apple TV Experience",
+  "description": "Immersive Apple TV styled cinematic showcase and booking experience for Nu Metro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

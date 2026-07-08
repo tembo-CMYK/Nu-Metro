@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Antigravity">
+    <meta name="copyright" content="Nu Metro Rebuilt">
+    <title>Nu Metro - Apple TV Experience</title>
+    <!-- Google Fonts: Outfit & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="index.css">
+    <script>
+        // Render dynamic vector poster placeholder (Fallback for new items)
+        function getMovieVectorGraphic(title) {
+            const titleLower = title.toLowerCase();
+            
+            let colors = ['#1d263b', '#0c0f16', '#ff8e2b'];
+            let iconSvg = '';
+
+            if (titleLower.includes('cocktail')) {
+                colors = ['#1a1005', '#080502', '#f5841f'];
+                iconSvg = `<path d="M20 10 L80 10 L50 50 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="miter"/><line x1="50" y1="50" x2="50" y2="85" stroke="currentColor" stroke-width="4"/><line x1="30" y1="85" x2="70" y2="85" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="28" r="4" fill="currentColor"/>`;
+            } else if (titleLower.includes('michael')) {
+                colors = ['#1a1005', '#080502', '#f5841f'];
+                iconSvg = `<rect x="40" y="20" width="20" height="40" rx="10" fill="none" stroke="currentColor" stroke-width="4"/><line x1="50" y1="60" x2="50" y2="85" stroke="currentColor" stroke-width="4"/><line x1="35" y1="85" x2="65" y2="85" stroke="currentColor" stroke-width="4"/><path d="M30 40 A20 20 0 0 0 70 40" fill="none" stroke="currentColor" stroke-width="3"/>`;
+            } else if (titleLower.includes('minions')) {
+                colors = ['#1a1005', '#080502', '#f5841f'];
+                iconSvg = `<circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="50" cy="50" r="12" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="50" cy="50" r="4" fill="currentColor"/><path d="M25 40 L35 42 M75 40 L65 42" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>`;
+            } else if (titleLower.includes('moana')) {
+                colors = ['#1a1005', '#080502', '#f5841f'];
+                iconSvg = `<path d="M50 15 A35 35 0 0 1 80 65 L50 65 Z M50 15 A35 35 0 0 0 20 65 L50 65 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M15 75 Q50 65 85 75 L80 85 Q50 78 20 85 Z" fill="currentColor"/>`;
+            } else if (titleLower.includes('obsession')) {
+                colors = ['#1a1005', '#080502', '#f5841f'];
+                iconSvg = `<path d="M12 35 C12 18 35 12 50 30 C65 12 88 18 88 35 C88 58 50 82 50 82 C50 82 12 58 12 35 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>`;
+            } else if (titleLower.includes('spider')) {
+                colors = ['#1a1005', '#080502', '#f5841f'];
+                iconSvg = `<circle cx="50" cy="50" r="10" fill="currentColor"/><line x1="50" y1="50" x2="15" y2="15" stroke="currentColor" stroke-width="3"/><line x1="50" y1="50" x2="85" y2="15" stroke="currentColor" stroke-width="3"/><line x1="50" y1="50" x2="15" y2="85" stroke="currentColor" stroke-width="3"/><line x1="50" y1="50" x2="85" y2="85" stroke="currentColor" stroke-width="3"/><path d="M50 30 Q30 50 50 70 Q70 50 50 30 M50 20 Q20 50 50 80 Q80 50 50 20" fill="none" stroke="currentColor" stroke-width="2"/>`;
+            } else if (titleLower.includes('supergirl')) {
+                colors = ['#1a1005', '#080502', '#f5841f'];
+                iconSvg = `<polygon points="50,15 85,30 80,75 50,90 20,75 15,30" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M35 38 Q50 32 60 42 Q50 48 35 52 Q65 60 55 75" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>`;
+            } else if (titleLower.includes('odyssey')) {
+                colors = ['#1a1005', '#080502', '#f5841f'];
+                iconSvg = `<polygon points="50,15 25,65 50,55 75,65" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><line x1="50" y1="55" x2="50" y2="85" stroke="currentColor" stroke-width="4"/><line x1="30" y1="85" x2="70" y2="85" stroke="currentColor" stroke-width="4"/>`;
+            } else if (titleLower.includes('toy')) {
+                colors = ['#1a1005', '#080502', '#f5841f'];
+                iconSvg = `<rect x="25" y="25" width="22" height="22" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><rect x="53" y="25" width="22" height="22" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><rect x="25" y="53" width="22" height="22" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><rect x="53" y="53" width="22" height="22" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><text x="36" y="41" font-size="12" font-weight="bold" fill="currentColor" text-anchor="middle">A</text><text x="64" y="41" font-size="12" font-weight="bold" fill="currentColor" text-anchor="middle">B</text><text x="36" y="69" font-size="12" font-weight="bold" fill="currentColor" text-anchor="middle">C</text><text x="64" y="69" font-size="12" font-weight="bold" fill="currentColor" text-anchor="middle">D</text>`;
+            } else {
+                colors = ['#1d263b', '#0c0f16', '#ff8e2b'];
+                iconSvg = `<circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="4"/><line x1="50" y1="20" x2="50" y2="80" stroke="currentColor" stroke-width="3"/><line x1="20" y1="50" x2="80" y2="50" stroke="currentColor" stroke-width="3"/><polygon points="50,25 55,45 50,50 45,45" fill="currentColor"/><polygon points="50,75 55,55 50,50 45,55" fill="currentColor"/>`;
+            }
+
+            return `
+                <div class="poster-placeholder" style="background: linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%);">
+                    <div class="poster-placeholder-glow" style="background: radial-gradient(circle, rgba(${hexToRgb(colors[2])}, 0.2) 0%, transparent 70%);"></div>
+                    <div>
+                        <svg viewBox="0 0 100 100" style="width: 50px; height: 50px; color: ${colors[2]};">
+                            ${iconSvg}
+                        </svg>
+                    </div>
+                    <div class="placeholder-text">${title}</div>
+                </div>
+            `;
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 255, 255';
+        }
+    </script>
+</head>
+<body>
+    <!-- Premium Luxury Intro Curtain -->
+    <div class="intro-curtain" id="intro-curtain">
+        <div class="curtain-panel panel-left"></div>
+        <div class="curtain-panel panel-right"></div>
+        <div class="intro-brand-wrapper">
+            <svg class="intro-logo" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+                <circle class="logo-circle" cx="50" cy="50" r="44" stroke="url(#introLogoGrad)" stroke-width="6" fill="none" />
+                <path class="logo-path" d="M35 70V30L65 70V30" stroke="url(#introLogoGrad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                <defs>
+                    <linearGradient id="introLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f5841f" />
+                        <stop offset="100%" stop-color="#ff7f36" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div class="intro-text">
+                <h1 class="intro-title">NU METRO</h1>
+                <p class="intro-subtitle">ARCADES</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Apple TV Styled Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Brand Logo -->
+            <div class="brand">
+                <div class="logo-mark">
+                    <svg viewBox="0 0 100 100" class="svg-logo">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="180 80"></circle>
+                        <path d="M35 30 L65 30 L35 70 L65 70" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-name">NU METRO</span>
+                    <span class="brand-sub">ARCADES</span>
+                </div>
+            </div>
+            
+            <!-- Centered Navigation Links -->
+            <ul class="nav-menu">
+                <li class="nav-item active"><a href="#" id="menu-showing">Now Showing</a></li>
+                <li class="nav-item"><a href="#" id="menu-coming">Coming Soon</a></li>
+                <li class="nav-item"><a href="#" id="menu-vip">VIP Club</a></li>
+                <li class="nav-item"><a href="#" id="menu-food">Food & Drinks</a></li>
+            </ul>
+
+            <!-- Search input and user profile -->
+            <div class="nav-right">
+                <div class="search-wrapper">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search...">
+                </div>
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i data-lucide="user" class="avatar-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Immersive Full-Bleed Hero Slideshow -->
+    <section class="hero-showcase" id="hero-showcase">
+        <div class="hero-backdrop-container">
+            <div class="hero-backdrop" id="hero-backdrop"></div>
+            <div class="hero-overlay"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-meta">
+                <span class="badge rating-badge" id="hero-rating">PG</span>
+                <span class="badge format-badge" id="hero-format">2D</span>
+                <span class="hero-genres" id="hero-genres">Animation, Adventure</span>
+            </div>
+            <h1 class="hero-title" id="hero-title">Movie Title</h1>
+            <p class="hero-synopsis" id="hero-synopsis">Movie description...</p>
+            
+            <div class="hero-actions">
+                <button class="btn-apple-primary" id="hero-book-btn">
+                    <i data-lucide="ticket"></i> Book Tickets
+                </button>
+                <button class="btn-apple-secondary" id="hero-trailer-btn">
+                    <i data-lucide="play"></i> Watch Trailer
+                </button>
+            </div>
+        </div>
+
+        <!-- Unified Slider Control Dock -->
+        <div class="slider-control-dock">
+            <button class="hero-nav-arrow prev" id="hero-prev" aria-label="Previous Slide"><i data-lucide="chevron-left"></i></button>
+            <div class="hero-indicators" id="hero-indicators">
+                <!-- Dynamically rendered indicator dots -->
+            </div>
+            <button class="hero-nav-arrow next" id="hero-next" aria-label="Next Slide"><i data-lucide="chevron-right"></i></button>
+        </div>
+
+        <!-- Scroll down indicator -->
+        <div class="hero-scroll-down" id="hero-scroll-down">
+            <span class="scroll-label">Explore showtimes</span>
+            <i data-lucide="chevron-down" class="scroll-arrow-icon"></i>
+        </div>
+    </section>
+
+    <!-- Main Content Area: Date Selector & Movie Grid -->
+    <section class="main-content" id="now-showing-section">
+        <!-- Section Title & Filters -->
+        <div class="content-header">
+            <h2>Select Screening Date</h2>
+            <div class="header-controls">
+                <div class="filter-group">
+                    <button class="filter-btn active" data-format="all">All Formats</button>
+                    <button class="filter-btn" data-format="2D">2D</button>
+                    <button class="filter-btn" data-format="3D">3D</button>
+                </div>
+                <div class="view-toggle-group">
+                    <button class="view-toggle-btn active" id="view-grid-btn" title="Grid View">
+                        <i data-lucide="layout-grid"></i>
+                    </button>
+                    <button class="view-toggle-btn" id="view-list-btn" title="List View">
+                        <i data-lucide="list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sticky Date Slider -->
+        <div class="calendar-wrapper">
+            <button class="calendar-nav prev-btn" id="cal-prev"><i data-lucide="chevron-left"></i></button>
+            <div class="calendar-strip" id="calendar-strip">
+                <!-- Dynamically generated calendar dates -->
+            </div>
+            <button class="calendar-nav next-btn" id="cal-next"><i data-lucide="chevron-right"></i></button>
+        </div>
+
+        <div class="section-divider">
+            <span class="divider-title" id="active-date-label">Wednesday, July 1</span>
+        </div>
+
+        <!-- Movie listings -->
+        <div class="listings-container">
+            <div class="no-results" id="no-results-msg" style="display: none;">
+                <i data-lucide="film" class="no-results-icon"></i>
+                <h3>No Screenings Today</h3>
+                <p>Try switching to another date or adjusting format filters.</p>
+                <button class="reset-filters-btn" id="reset-filters">Reset Filters</button>
+            </div>
+            
+            <div class="movie-grid" id="movie-grid">
+                <!-- Dynamic movie cards -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Coming Soon Section -->
+    <section class="main-content scroll-reveal" id="coming-soon-section" style="margin-top: 0; padding-top: 2rem;">
+        <div class="content-header">
+            <h2>Coming Soon</h2>
+        </div>
+        <div class="coming-soon-container">
+            <div class="coming-soon-slider">
+                <div class="coming-soon-card" id="cs-card-welcome-to-the-jungle">
+                    <div class="coming-soon-poster">
+                        <img src="assets/Welcome to the Jungle Poster.webp" alt="Welcome to the Jungle" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML=getMovieVectorGraphic('Welcome to the Jungle')">
+                        <div class="coming-soon-overlay">
+                            <span class="badge release-badge">Dec 2026</span>
+                        </div>
+                    </div>
+                    <div class="coming-soon-info">
+                        <h3>Welcome to the Jungle</h3>
+                        <p class="coming-soon-meta">Adventure, Comedy</p>
+                        <div class="coming-soon-date">
+                            <i data-lucide="calendar"></i>
+                            <span>Expected Dec 18, 2026</span>
+                        </div>
+                        <button class="btn-coming-soon-remind" data-movie="Welcome to the Jungle" data-expected="Expected Dec 18, 2026" data-genres="Adventure, Comedy">
+                            <i data-lucide="bell"></i> <span>Remind Me</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="coming-soon-card" id="cs-card-spider-man-brand-new-day">
+                    <div class="coming-soon-poster">
+                        <img src="assets/Brand New Day Poster.webp" alt="Spider-Man" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML=getMovieVectorGraphic('Spider-Man: Brand New Day')">
+                        <div class="coming-soon-overlay">
+                            <span class="badge release-badge">Jul 2026</span>
+                        </div>
+                    </div>
+                    <div class="coming-soon-info">
+                        <h3>Spider-Man: Brand New Day</h3>
+                        <p class="coming-soon-meta">Action, Sci-Fi</p>
+                        <div class="coming-soon-date">
+                            <i data-lucide="calendar"></i>
+                            <span>Expected Jul 3, 2026</span>
+                        </div>
+                        <button class="btn-coming-soon-remind" data-movie="Spider-Man: Brand New Day" data-expected="Expected Jul 3, 2026" data-genres="Action, Sci-Fi">
+                            <i data-lucide="bell"></i> <span>Remind Me</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="coming-soon-card" id="cs-card-toy-story-5">
+                    <div class="coming-soon-poster">
+                        <img src="assets/toy story 5 Poster.webp" alt="Toy Story 5" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML=getMovieVectorGraphic('Toy Story 5')">
+                        <div class="coming-soon-overlay">
+                            <span class="badge release-badge">Jun 2026</span>
+                        </div>
+                    </div>
+                    <div class="coming-soon-info">
+                        <h3>Toy Story 5</h3>
+                        <p class="coming-soon-meta">Animation, Family</p>
+                        <div class="coming-soon-date">
+                            <i data-lucide="calendar"></i>
+                            <span>Expected Jun 19, 2026</span>
+                        </div>
+                        <button class="btn-coming-soon-remind" data-movie="Toy Story 5" data-expected="Expected Jun 19, 2026" data-genres="Animation, Family">
+                            <i data-lucide="bell"></i> <span>Remind Me</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="coming-soon-card" id="cs-card-obsession">
+                    <div class="coming-soon-poster">
+                        <img src="assets/Obsession movie Poster.webp" alt="Obsession" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML=getMovieVectorGraphic('Obsession')">
+                        <div class="coming-soon-overlay">
+                            <span class="badge release-badge">Aug 2026</span>
+                        </div>
+                    </div>
+                    <div class="coming-soon-info">
+                        <h3>Obsession</h3>
+                        <p class="coming-soon-meta">Thriller, Mystery</p>
+                        <div class="coming-soon-date">
+                            <i data-lucide="calendar"></i>
+                            <span>Expected Aug 14, 2026</span>
+                        </div>
+                        <button class="btn-coming-soon-remind" data-movie="Obsession" data-expected="Expected Aug 14, 2026" data-genres="Thriller, Mystery">
+                            <i data-lucide="bell"></i> <span>Remind Me</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Saved Release Alerts / My Reminders Panel -->
+        <div class="active-reminders-panel" id="active-reminders-section" style="display: none; margin-top: 2rem;">
+            <div class="active-reminders-header">
+                <div class="header-left">
+                    <i data-lucide="bell-ring"></i>
+                    <h3>My Saved Release Alerts</h3>
+                </div>
+                <span class="active-reminders-count" id="reminders-count">0 movies</span>
+            </div>
+            <div class="active-reminders-grid" id="active-reminders-container">
+                <!-- Dynamically populated rows of active reminders -->
+            </div>
+        </div>
+    </section>
+
+    <!-- VIP Lounge Section -->
+    <section class="main-content scroll-reveal" id="vip-club-section" style="margin-top: 0; padding-top: 2rem;">
+        <div class="content-header">
+            <h2>VIP Club Lounge</h2>
+        </div>
+        <div class="vip-club-container">
+            <div class="vip-club-promo">
+                <div class="vip-promo-content">
+                    <h3>Experience Premium Luxury Cinema</h3>
+                    <p>Unlock access to the ultimate movie experience. Recline in our premium heated leather beds, enjoy full in-theater waiter service, and savor a curated gourmet menu at the press of a button.</p>
+                    <ul class="vip-perks-list">
+                        <li><i data-lucide="armchair"></i> Fully Reclining Luxury Beds</li>
+                        <li><i data-lucide="chef-hat"></i> In-Theater Gourmet Dining</li>
+                        <li><i data-lucide="bell"></i> Call Button Waiter Service</li>
+                        <li><i data-lucide="sparkles"></i> Private Lounge & Bar Access</li>
+                    </ul>
+                </div>
+                <div class="vip-join-card">
+                    <h4>Join the VIP Lounge</h4>
+                    <p>Enter your details below to receive exclusive screening invites, complimentary lounge passes, and rewards.</p>
+                    <form id="vip-join-form" class="vip-join-form">
+                        <input type="text" id="vip-name" placeholder="Your Name" required>
+                        <input type="email" id="vip-email" placeholder="Your Email Address" required>
+                        <button type="submit" class="btn-checkout">Activate VIP Membership</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Food & Drinks Section -->
+    <section class="main-content scroll-reveal" id="food-drinks-section" style="margin-top: 0; padding-top: 2rem;">
+        <div class="content-header">
+            <h2>SnackBar & Gourmet Menu</h2>
+        </div>
+        <div class="food-drinks-container">
+            <div class="food-menu-column">
+                <div class="food-category-tabs">
+                    <button class="food-tab active" data-category="popcorn">Popcorn</button>
+                    <button class="food-tab" data-category="meals">Hot Meals</button>
+                    <button class="food-tab" data-category="drinks">Drinks</button>
+                </div>
+                <div class="food-items-grid" id="food-items-grid">
+                    <!-- Loaded dynamically via js -->
+                </div>
+            </div>
+            <div class="food-cart-column">
+                <div class="food-cart-card">
+                    <h4>Your Snack Order</h4>
+                    <div class="food-cart-list" id="food-cart-list">
+                        <p class="no-seats-placeholder">Your basket is empty. Add snacks to enjoy during the show!</p>
+                    </div>
+                    <div class="food-cart-footer">
+                        <div class="food-total-row">
+                            <span>Subtotal</span>
+                            <span class="food-total-price" id="food-total-price">K 0.00</span>
+                        </div>
+                        <button class="btn-checkout disabled" id="food-checkout-btn">Confirm Snack Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trailer Video Modal Overlay -->
+    <div class="modal-overlay" id="trailer-modal">
+        <div class="modal-card trailer-card">
+            <button class="modal-close" id="close-trailer-modal"><i data-lucide="x"></i></button>
+            <div class="video-container" id="video-player-container">
+                <!-- YouTube iframe gets loaded dynamically here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Seat-Map Modal Overlay -->
+    <div class="modal-overlay" id="booking-modal">
+        <div class="modal-card booking-card">
+            <button class="modal-close" id="close-modal"><i data-lucide="x"></i></button>
+            
+            <div class="modal-body">
+                <!-- Left Seating Grid Panel -->
+                <div class="seating-panel">
+                    <div class="screen-projection">
+                        <div class="screen-curve"></div>
+                        <span class="screen-text">SCREEN</span>
+                        <div class="projector-glow-beam"></div>
+                    </div>
+
+                    <div class="seat-grid-container" id="seat-grid">
+                        <!-- Dynamic seating layout -->
+                    </div>
+
+                    <!-- Floating Zoom Accessibility Controls -->
+                    <div class="zoom-accessibility-controls">
+                        <button class="btn-zoom-control" id="btn-zoom-out" title="Zoom Out"><i data-lucide="minus-circle"></i></button>
+                        <button class="btn-zoom-control" id="btn-zoom-reset" title="Reset Zoom"><i data-lucide="maximize-2"></i></button>
+                        <button class="btn-zoom-control" id="btn-zoom-in" title="Zoom In"><i data-lucide="plus-circle"></i></button>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-seat available"></span>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-seat selected"></span>
+                            <span>Selected</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-seat occupied"></span>
+                            <span>Reserved</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-seat vip"></span>
+                            <span>VIP Lounge</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Ticket Summary Panel -->
+                <div class="checkout-panel">
+                    <div class="movie-mini-details">
+                        <h3 id="modal-movie-title">Movie Title</h3>
+                        <div class="mini-meta">
+                            <span class="badge format-badge" id="modal-movie-format">2D</span>
+                            <span class="badge rating-badge" id="modal-movie-rating">PG</span>
+                            <span class="badge hall-badge"><i data-lucide="tv"></i> Cinema <span id="modal-movie-cinema">4</span></span>
+                        </div>
+                        <div class="showtime-time-stamp">
+                            <i data-lucide="calendar"></i>
+                            <span id="modal-movie-date-time">Wed, Jul 1 at 16:30</span>
+                        </div>
+                    </div>
+
+                    <div class="checkout-scroll">
+                        <div class="ticket-type-selector">
+                            <div class="ticket-row">
+                                <div class="ticket-info">
+                                    <span class="ticket-name">Standard Ticket</span>
+                                    <span class="ticket-price">K 100.00</span>
+                                </div>
+                                <span class="seat-count-tag" id="standard-count">0 Selected</span>
+                            </div>
+                            <div class="ticket-row">
+                                <div class="ticket-info">
+                                    <span class="ticket-name">VIP Lounge Ticket</span>
+                                    <span class="ticket-price">K 150.00</span>
+                                </div>
+                                <span class="seat-count-tag" id="vip-count">0 Selected</span>
+                            </div>
+                        </div>
+
+                        <div class="selected-seats-list-wrapper">
+                            <h4>Selected Seats</h4>
+                            <div class="selected-seats-tags" id="selected-seats-container">
+                                <span class="no-seats-placeholder">No seats selected. Click on the seats map.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checkout-footer">
+                        <div class="total-row">
+                            <span>Total Price</span>
+                            <span class="price-val" id="total-price-display">K 0.00</span>
+                        </div>
+                        <button class="btn-checkout disabled" id="checkout-confirm-btn" disabled>
+                            <i data-lucide="ticket"></i> Confirm Seats Booking
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Movie Dates & Demand Insights Modal Overlay -->
+    <div class="modal-overlay" id="dates-modal">
+        <div class="modal-card dates-card">
+            <button class="modal-close" id="close-dates-modal"><i data-lucide="x"></i></button>
+            <div class="modal-body dates-modal-body">
+                <!-- Left Poster/Movie Column -->
+                <div class="dates-movie-panel">
+                    <div class="dates-movie-poster-wrapper" id="dates-movie-poster">
+                        <!-- Poster injected dynamically -->
+                    </div>
+                    <div class="dates-movie-details">
+                        <h3 id="dates-movie-title">Movie Title</h3>
+                        <div class="mini-meta">
+                            <span class="badge rating-badge" id="dates-movie-rating">PG</span>
+                            <span class="badge format-badge" id="dates-movie-format">2D | 3D</span>
+                        </div>
+                        <p class="dates-movie-desc" id="dates-movie-desc">Experience this movie across a variety of dates and slots. See our demand insights below to choose your perfect time!</p>
+                    </div>
+                </div>
+
+                <!-- Right Schedule / Demand Insights Column -->
+                <div class="dates-schedule-panel">
+                    <div class="dates-panel-header">
+                        <h4>Available Showdates & Times</h4>
+                        <p class="dates-panel-sub">Select a session below to proceed to seat selection. We've highlighted suitable days based on cinema demand tips.</p>
+                    </div>
+                    
+                    <!-- Scrollable Schedule List with Demand Badges & Tips -->
+                    <div class="dates-schedule-scroll" id="dates-schedule-container">
+                        <!-- List of dates, demand tips, showtime buttons injected dynamically -->
+                    </div>
+
+                    <div class="dates-general-tips">
+                        <div class="tip-card-header">
+                            <i data-lucide="sparkles"></i>
+                            <span>Cinema Booking Insider Tips</span>
+                        </div>
+                        <ul class="tip-list">
+                            <li><strong>Avoid the rush:</strong> Tuesdays and Wednesdays are usually the quietest days for optimal comfort.</li>
+                            <li><strong>Best audio/visuals:</strong> Cinema Hall 1 & 2 feature premium Dolby surround sound and 4K projectors.</li>
+                            <li><strong>VIP Lounges:</strong> Enjoy ultra-plush leather recliners and exclusive lounge access by booking VIP seats.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Movie Release Reminder Modal Overlay -->
+    <div class="modal-overlay" id="reminder-modal">
+        <div class="modal-card reminder-card">
+            <button class="modal-close" id="close-reminder-modal"><i data-lucide="x"></i></button>
+            <div class="modal-body reminder-modal-body">
+                <!-- Left Poster/Movie Column -->
+                <div class="reminder-movie-panel">
+                    <div class="reminder-movie-poster-wrapper" id="reminder-movie-poster">
+                        <!-- Poster injected dynamically -->
+                    </div>
+                    <div class="reminder-movie-details">
+                        <h3 id="reminder-movie-title">Movie Title</h3>
+                        <div class="mini-meta">
+                            <span class="badge genre-badge" id="reminder-movie-genre">Genre</span>
+                            <span class="badge expected-badge" id="reminder-movie-expected">Dec 2026</span>
+                        </div>
+                        <p class="reminder-movie-desc">Get an automated alert the instant tickets go on sale so you can lock in prime center seats or VIP luxury loungers!</p>
+                    </div>
+                </div>
+
+                <!-- Right Reminder Form Column -->
+                <div class="reminder-form-panel">
+                    <div class="reminder-panel-header">
+                        <h4>Set Ticket Release Alert</h4>
+                        <p class="reminder-panel-sub">We will ping you with ticket pre-sales and opening night schedules.</p>
+                    </div>
+                    
+                    <form id="reminder-setup-form" class="reminder-setup-form">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="reminder-name" style="display: block; font-size: 0.75rem; color: var(--color-gray-500); margin-bottom: 0.35rem;">Name</label>
+                            <input type="text" id="reminder-name" placeholder="Enter your name" required style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 0.6rem 0.8rem; border-radius: 8px; color: #fff; font-size: 0.85rem;">
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="reminder-email" style="display: block; font-size: 0.75rem; color: var(--color-gray-500); margin-bottom: 0.35rem;">Email Address</label>
+                            <input type="email" id="reminder-email" placeholder="Enter your email address" required style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 0.6rem 0.8rem; border-radius: 8px; color: #fff; font-size: 0.85rem;">
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="reminder-date" style="display: block; font-size: 0.75rem; color: var(--color-gray-500); margin-bottom: 0.35rem;">Remind Me On</label>
+                            <input type="date" id="reminder-date" required style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 0.6rem 0.8rem; border-radius: 8px; color: #fff; font-size: 0.85rem; color-scheme: dark;">
+                        </div>
+                        
+                        <div class="reminder-preferences" style="margin-bottom: 1.5rem;">
+                            <h5 style="font-size: 0.78rem; font-weight: 600; color: #fff; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.02em;">Notification Channels</h5>
+                            <label class="pref-checkbox" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="pref-email" checked disabled style="accent-color: var(--color-brand);">
+                                <span class="pref-label" style="font-size: 0.78rem; color: var(--color-gray-400);">Email Release Alert (Immediate)</span>
+                            </label>
+                            <label class="pref-checkbox" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="pref-sms" style="accent-color: var(--color-brand);">
+                                <span class="pref-label" style="font-size: 0.78rem; color: var(--color-gray-400);">SMS Reminder (When tickets drop)</span>
+                            </label>
+                            <label class="pref-checkbox" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="pref-vip" style="accent-color: var(--color-brand);">
+                                <span class="pref-label" style="font-size: 0.78rem; color: var(--color-gray-400);">Early-Bird Pre-sales Invite</span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn-checkout w-full" id="reminder-submit-btn" style="margin-top: 1rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i data-lucide="bell"></i> Set Release Reminder
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Confirmation Notification Toast -->
+    <div class="toast-notification" id="toast">
+        <button class="toast-close-btn" id="toast-close-btn" aria-label="Close ticket">
+            <i data-lucide="x"></i>
+        </button>
+        <div class="toast-header">
+            <div class="toast-header-left">
+                <i data-lucide="check-circle" class="toast-icon"></i>
+                <div class="toast-text">
+                    <div class="toast-title">Booking Confirmed!</div>
+                    <div class="toast-desc">Scan-ready digital ticket</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Apple Wallet Styled Cinema Ticket -->
+        <div class="ticket-card">
+            <div class="ticket-top">
+                <div class="ticket-movie-info">
+                    <span class="ticket-category">NU METRO ARCADE TICKET</span>
+                    <h4 class="ticket-movie-title" id="ticket-movie-title">Movie Title</h4>
+                    <div class="ticket-meta-grid">
+                        <div class="ticket-meta-item">
+                            <span class="ticket-label">SHOWTIME</span>
+                            <span class="ticket-value" id="ticket-showtime">--:-- | Cinema 1</span>
+                        </div>
+                        <div class="ticket-meta-item">
+                            <span class="ticket-label">SEATS</span>
+                            <span class="ticket-value" id="ticket-seats">None Selected</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ticket-divider">
+                <div class="ticket-notch notch-left"></div>
+                <div class="ticket-dashed-line"></div>
+                <div class="ticket-notch notch-right"></div>
+            </div>
+            
+            <div class="ticket-bottom">
+                <div class="qr-container">
+                    <div class="qr-glow-effect"></div>
+                    <canvas id="ticket-qr-canvas"></canvas>
+                </div>
+                <div class="ticket-code-info">
+                    <span class="ticket-code" id="ticket-code">NM-REF-0000</span>
+                    <span class="ticket-scan-label">PRESENT QR CODE AT TURNSTILE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Movie Data and Core Logic -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script src="accounts.js"></script>
+</body>
+</html>

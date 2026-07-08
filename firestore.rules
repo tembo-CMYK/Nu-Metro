@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // For development and fallback custom authentication compatibility
+    match /users/{userId} {
+      allow read, write: if true;
+      
+      // Nested collections for user bookings
+      match /bookings/{bookingId} {
+        allow read, write: if true;
+      }
+      
+      // Nested collections for user reminders
+      match /reminders/{reminderId} {
+        allow read, write: if true;
+      }
+    }
+  }
+}
