@@ -23,7 +23,7 @@
     // Fetch config and set up Firebase Auth/Firestore
     async function initializeFirebase() {
         try {
-            const response = await fetch('/firebase-applet-config.json');
+            const response = await fetch('firebase-applet-config.json');
             if (!response.ok) throw new Error('Could not fetch firebase-applet-config.json');
             const config = await response.json();
 
