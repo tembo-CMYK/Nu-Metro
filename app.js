@@ -1,10 +1,10 @@
 // Movie Metadata Enrichment for Immersive Apple TV Hero Showcase
 const MOVIE_METADATA = {
-    "Cocktail 2": {
-        genres: "Comedy, Romance, Drama",
-        description: "Three friends navigate the ups and downs of love, careers, and cocktails in this highly anticipated romantic comedy sequel.",
-        trailerUrl: "https://www.youtube.com/embed/5F217q_V2r4", // Official trailer embed
-        backdrop: "assets/Cocktail 2.jpg"
+    "Avatar": {
+        genres: "Action, Adventure, Fantasy, Sci-Fi",
+        description: "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. When a familiar threat returns to finish what was previously started, Jake must work with Neytiri and the army of the Na'vi race to protect their home.",
+        trailerUrl: "https://www.youtube.com/embed/d9MyW72ELq0",
+        backdrop: "src/assets/images/regenerated_image_1783625278783.jpg"
     },
     "Michael": {
         genres: "Biography, Drama, Music",
@@ -63,7 +63,7 @@ const MOVIE_METADATA = {
 };
 
 const MOVIE_POSTERS = {
-    "Cocktail 2": "assets/Cocktail 2 Poster.jpg",
+    "Avatar": "src/assets/images/regenerated_image_1783625278783.jpg",
     "Michael": "assets/Michael Poster.webp",
     "Minions & Monsters": "assets/Minions Poster.jpg",
     "Moana (Live Action)": "assets/Moana Poster.jpg",
@@ -138,6 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Snack Bar Gourmet Menu
     setupFoodMenu();
+
+    // Setup draggable scrolling on Coming Soon Slider
+    const csSlider = document.querySelector('.coming-soon-slider');
+    if (csSlider) {
+        makeElementDraggableToScroll(csSlider);
+    }
 
     // Initialize Scroll Spy for Navigation Highlight Alignment
     setupScrollSpy();
@@ -369,6 +375,9 @@ function setupCalendar() {
     nextBtn.addEventListener('click', () => {
         strip.scrollBy({ left: 220, behavior: 'smooth' });
     });
+
+    // Make strip draggable
+    makeElementDraggableToScroll(strip);
 }
 
 function updateActiveDateLabel() {
@@ -434,7 +443,7 @@ function setupEventListeners() {
         e.stopPropagation();
         if (AppState.heroMovies.length === 0) return;
         AppState.heroIndex = (AppState.heroIndex - 1 + AppState.heroMovies.length) % AppState.heroMovies.length;
-        renderHeroSlide(AppState.heroIndex);
+        renderHeroSlide(AppState.heroIndex, -1);
         updateHeroIndicators();
         initializeHeroRotatorInterval();
     });
@@ -443,7 +452,7 @@ function setupEventListeners() {
         e.stopPropagation();
         if (AppState.heroMovies.length === 0) return;
         AppState.heroIndex = (AppState.heroIndex + 1) % AppState.heroMovies.length;
-        renderHeroSlide(AppState.heroIndex);
+        renderHeroSlide(AppState.heroIndex, 1);
         updateHeroIndicators();
         initializeHeroRotatorInterval();
     });
@@ -706,20 +715,21 @@ function initializeHeroSlideshow() {
     if (AppState.heroMovies.length === 0) return;
 
     AppState.heroIndex = 0;
-    renderHeroSlide(AppState.heroIndex);
+    renderHeroSlide(AppState.heroIndex, 0);
     renderHeroIndicators();
+    setupHeroDragGestures();
 
     // Start auto rotater (cycles every 7 seconds)
     if (AppState.heroRotatorTimer) clearInterval(AppState.heroRotatorTimer);
     AppState.heroRotatorTimer = setInterval(() => {
         AppState.heroIndex = (AppState.heroIndex + 1) % AppState.heroMovies.length;
-        renderHeroSlide(AppState.heroIndex);
+        renderHeroSlide(AppState.heroIndex, 1);
         updateHeroIndicators();
     }, 7000);
 }
 
 // Render active hero slide with staggered text reveals
-function renderHeroSlide(index) {
+function renderHeroSlide(index, slideDirection = 1) {
     const movie = AppState.heroMovies[index];
     if (!movie) return;
 
@@ -741,6 +751,13 @@ function renderHeroSlide(index) {
         backdrop: MOVIE_POSTERS[movie.title] || ""
     };
 
+    // Calculate exit and entry positions based on navigation direction
+    const exitX = slideDirection > 0 ? -40 : (slideDirection < 0 ? 40 : 0);
+    const exitY = slideDirection === 0 ? 15 : 0;
+    
+    const entryX = slideDirection > 0 ? 40 : (slideDirection < 0 ? -40 : 0);
+    const entryY = slideDirection === 0 ? -15 : 0;
+
     // Fade out backdrop and details, then update and stagger in
     gsap.killTweensOf([backdropEl, metaBox, titleEl, synopsisEl, actionsBox]);
 
@@ -748,9 +765,10 @@ function renderHeroSlide(index) {
     gsap.timeline()
         .to([metaBox, titleEl, synopsisEl, actionsBox], {
             opacity: 0,
-            y: 15,
-            stagger: 0.04,
-            duration: 0.2,
+            x: exitX,
+            y: exitY,
+            stagger: 0.03,
+            duration: 0.22,
             ease: 'power2.in'
         })
         .to(backdropEl, {
@@ -790,9 +808,10 @@ function renderHeroSlide(index) {
         })
         // Stagger entrance of updated texts
         .fromTo([metaBox, titleEl, synopsisEl, actionsBox],
-            { opacity: 0, y: -15 },
+            { opacity: 0, x: entryX, y: entryY },
             {
                 opacity: 1,
+                x: 0,
                 y: 0,
                 stagger: 0.06,
                 duration: 0.65,
@@ -833,6 +852,7 @@ function renderHeroSlide(index) {
 // Render pagination dots for slideshow
 function renderHeroIndicators() {
     const container = document.getElementById('hero-indicators');
+    if (!container) return;
     container.innerHTML = '';
 
     AppState.heroMovies.forEach((_, index) => {
@@ -840,8 +860,11 @@ function renderHeroIndicators() {
         dot.className = 'indicator-dot' + (index === AppState.heroIndex ? ' active' : '');
         
         dot.addEventListener('click', () => {
+            const prevIndex = AppState.heroIndex;
+            if (prevIndex === index) return;
             AppState.heroIndex = index;
-            renderHeroSlide(AppState.heroIndex);
+            const slideDirection = index > prevIndex ? 1 : -1;
+            renderHeroSlide(AppState.heroIndex, slideDirection);
             updateHeroIndicators();
             
             // Reset interval to avoid immediate auto-rotation
@@ -867,7 +890,7 @@ function initializeHeroRotatorInterval() {
     if (AppState.heroRotatorTimer) clearInterval(AppState.heroRotatorTimer);
     AppState.heroRotatorTimer = setInterval(() => {
         AppState.heroIndex = (AppState.heroIndex + 1) % AppState.heroMovies.length;
-        renderHeroSlide(AppState.heroIndex);
+        renderHeroSlide(AppState.heroIndex, 1);
         updateHeroIndicators();
     }, 7000);
 }
@@ -913,7 +936,10 @@ function getMovieVectorGraphic(title) {
     let colors = ['#1d263b', '#0c0f16', '#ff8e2b'];
     let iconSvg = '';
 
-    if (titleLower.includes('cocktail')) {
+    if (titleLower.includes('avatar')) {
+        colors = ['#00253e', '#000b14', '#00b4d8'];
+        iconSvg = `<circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="4"/><path d="M50 20 L50 80 M35 45 Q50 65 65 45" stroke="currentColor" stroke-width="3" fill="none"/><path d="M35 35 Q50 45 65 35" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="42" cy="45" r="3" fill="currentColor"/><circle cx="58" cy="45" r="3" fill="currentColor"/>`;
+    } else if (titleLower.includes('cocktail')) {
         colors = ['#1a1005', '#080502', '#f5841f'];
         iconSvg = `<path d="M20 10 L80 10 L50 50 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="miter"/><line x1="50" y1="50" x2="50" y2="85" stroke="currentColor" stroke-width="4"/><line x1="30" y1="85" x2="70" y2="85" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="28" r="4" fill="currentColor"/>`;
     } else if (titleLower.includes('michael')) {
@@ -1104,24 +1130,38 @@ function renderMovieGrid() {
             grid.appendChild(listRow);
         } else {
             // Render Apple TV style Grid Card
-            let schedulesHTML = '';
-            movie.schedule.forEach(sch => {
+            const validSchedules = movie.schedule.map(sch => {
                 let dayShowtimes = sch.showtimes;
                 if (AppState.formatFilter !== 'all') {
                     dayShowtimes = dayShowtimes.filter(st => st.dimension.trim() === AppState.formatFilter);
                 }
-                if (dayShowtimes.length === 0) return;
+                return { ...sch, showtimes: dayShowtimes };
+            }).filter(sch => sch.showtimes.length > 0);
 
+            if (validSchedules.length === 0) return;
+
+            // Determine initially active date
+            const hasActiveDate = validSchedules.some(sch => sch.date === AppState.activeDate);
+            const initialActiveDate = hasActiveDate ? AppState.activeDate : validSchedules[0].date;
+
+            let tabsHTML = '';
+            let schedulesHTML = '';
+
+            validSchedules.forEach(sch => {
                 const dObj = new Date(sch.date);
                 const dayShort = dObj.toLocaleDateString('en-US', { weekday: 'short' });
                 const dayNum = dObj.getDate();
-                const dateLabel = `${dayShort} ${dayNum}`;
+                const isActive = sch.date === initialActiveDate;
 
-                const isCurrentDate = sch.date === AppState.activeDate;
-                const activeRowClass = isCurrentDate ? 'active-date-row' : '';
+                tabsHTML += `
+                    <button class="card-schedule-tab ${isActive ? 'active' : ''}" data-date="${sch.date}">
+                        <span class="tab-day-name">${dayShort}</span>
+                        <span class="tab-day-num">${dayNum}</span>
+                    </button>
+                `;
 
                 let timePillsHTML = '';
-                dayShowtimes.forEach(st => {
+                sch.showtimes.forEach(st => {
                     timePillsHTML += `
                         <button class="showtime-slot" 
                                 data-time="${st.time}" 
@@ -1134,16 +1174,13 @@ function renderMovieGrid() {
                 });
 
                 schedulesHTML += `
-                    <div class="card-schedule-row ${activeRowClass}" data-date="${sch.date}">
-                        <span class="card-date-label">${dateLabel}</span>
+                    <div class="card-schedule-row ${isActive ? 'active-panel' : 'hidden-panel'}" data-date="${sch.date}">
                         <div class="card-time-slots">
                             ${timePillsHTML}
                         </div>
                     </div>
                 `;
             });
-
-            if (schedulesHTML === '') return;
 
             const movieCard = document.createElement('div');
             movieCard.className = 'movie-card scroll-reveal';
@@ -1159,11 +1196,47 @@ function renderMovieGrid() {
                 <div class="movie-card-info">
                     <h3 class="movie-card-title">${movie.title}</h3>
                     <div class="movie-card-meta">${rating} Certified • Cinema Hall</div>
+                    <div class="card-schedule-tabs">
+                        ${tabsHTML}
+                    </div>
                     <div class="card-schedule-list">
                         ${schedulesHTML}
                     </div>
                 </div>
             `;
+
+            // Bind Card tab click handlers
+            const tabs = movieCard.querySelectorAll('.card-schedule-tab');
+            const tabContainer = movieCard.querySelector('.card-schedule-tabs');
+            if (tabContainer) {
+                makeElementDraggableToScroll(tabContainer);
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    // Center clicked tab in the slider
+                    tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+                    const clickedDate = tab.dataset.date;
+                    const panels = movieCard.querySelectorAll('.card-schedule-row');
+                    panels.forEach(panel => {
+                        if (panel.dataset.date === clickedDate) {
+                            panel.classList.add('active-panel');
+                            panel.classList.remove('hidden-panel');
+                            if (typeof gsap !== 'undefined') {
+                                gsap.fromTo(panel, { opacity: 0, y: 3 }, { opacity: 1, y: 0, duration: 0.22 });
+                            }
+                        } else {
+                            panel.classList.remove('active-panel');
+                            panel.classList.add('hidden-panel');
+                        }
+                    });
+                });
+            });
 
             movieCard.querySelector('.poster-container').addEventListener('click', () => {
                 openDatesModal(movie);
@@ -1619,6 +1692,11 @@ function updateCheckoutUI() {
     stdCountEl.textContent = `${stdCount} Selected`;
     vipCountEl.textContent = `${vipCount} Selected`;
     totalPriceDisplay.textContent = `K ${totalPrice.toFixed(2)}`;
+
+    const subtotalDisplay = document.getElementById('subtotal-amount-display');
+    if (subtotalDisplay) {
+        subtotalDisplay.textContent = `K ${totalPrice.toFixed(2)}`;
+    }
 }
 
 function confirmBooking() {
@@ -1667,7 +1745,9 @@ function showToast(message, ticketData = null) {
     const toast = document.getElementById('toast');
     if (!toast) return;
 
-    // Get ticket elements
+    // Get elements
+    const toastTitleEl = document.getElementById('toast-title');
+    const toastDescEl = document.getElementById('toast-desc');
     const movieTitleEl = document.getElementById('ticket-movie-title');
     const showtimeEl = document.getElementById('ticket-showtime');
     const seatsEl = document.getElementById('ticket-seats');
@@ -1675,34 +1755,93 @@ function showToast(message, ticketData = null) {
     const qrCanvas = document.getElementById('ticket-qr-canvas');
     const categoryEl = toast.querySelector('.ticket-category');
     const scanLabelEl = toast.querySelector('.ticket-scan-label');
+    const label1El = document.getElementById('ticket-label-1');
+    const label2El = document.getElementById('ticket-label-2');
 
-    // Default or custom close timeout
-    let duration = 6000; // Extend duration for interactive tickets so they can scan
+    // Default duration
+    let duration = 5000;
 
-    if (ticketData) {
-        // Real seats booking ticket
-        if (categoryEl) categoryEl.textContent = 'NU METRO ARCADE TICKET';
-        if (movieTitleEl) movieTitleEl.textContent = ticketData.movieTitle;
-        if (showtimeEl) showtimeEl.textContent = ticketData.showtime;
-        if (seatsEl) seatsEl.textContent = ticketData.seats;
-        if (codeEl) codeEl.textContent = ticketData.refCode;
-        if (scanLabelEl) scanLabelEl.textContent = 'PRESENT QR CODE AT TURNSTILE';
-        
-        duration = 10000; // Give ample time for scan on booking confirmation
+    // Reset layout classes
+    toast.classList.remove('compact');
 
-        // Generate dynamic QR
+    // Determine if we should show a full Ticket Card or just a compact Toast message
+    const isVipSignup = !ticketData && message.includes('Welcome') && message.includes('activated');
+    const showTicketCard = ticketData || isVipSignup;
+
+    if (showTicketCard) {
+        // --- Full Digital Ticket Card View ---
+        duration = 10000; // Give plenty of time to scan/view
+
+        if (ticketData && ticketData.type === 'snack') {
+            // Snack order ticket
+            if (toastTitleEl) toastTitleEl.textContent = 'Order Confirmed!';
+            if (toastDescEl) toastDescEl.textContent = 'Pick up at Snack Bar Counter';
+            if (categoryEl) categoryEl.textContent = 'NU METRO SNACKBAR VOUCHER';
+            if (label1El) label1El.textContent = 'ORDER ITEMS';
+            if (label2El) label2El.textContent = 'TOTAL PAID';
+            if (movieTitleEl) movieTitleEl.textContent = ticketData.movieTitle;
+            if (showtimeEl) showtimeEl.textContent = ticketData.showtime;
+            if (seatsEl) seatsEl.textContent = ticketData.seats;
+            if (codeEl) codeEl.textContent = ticketData.refCode;
+            if (scanLabelEl) scanLabelEl.textContent = 'PRESENT QR CODE TO COLLECT SNACKS';
+        } else if (ticketData) {
+            // Standard movie booking ticket
+            if (toastTitleEl) toastTitleEl.textContent = 'Booking Confirmed!';
+            if (toastDescEl) toastDescEl.textContent = 'Scan-ready digital ticket';
+            if (categoryEl) categoryEl.textContent = 'NU METRO ARCADE TICKET';
+            if (label1El) label1El.textContent = 'SHOWTIME';
+            if (label2El) label2El.textContent = 'SEATS';
+            if (movieTitleEl) movieTitleEl.textContent = ticketData.movieTitle;
+            if (showtimeEl) showtimeEl.textContent = ticketData.showtime;
+            if (seatsEl) seatsEl.textContent = ticketData.seats;
+            if (codeEl) codeEl.textContent = ticketData.refCode;
+            if (scanLabelEl) scanLabelEl.textContent = 'PRESENT QR CODE AT TURNSTILE';
+        } else {
+            // VIP Club signup
+            if (toastTitleEl) toastTitleEl.textContent = 'Membership Active!';
+            if (toastDescEl) toastDescEl.textContent = 'Scan your pass to unlock VIP lounges';
+            if (categoryEl) categoryEl.textContent = 'VIP CLUB DIGITAL PASS';
+            if (label1El) label1El.textContent = 'ACCESS LEVEL';
+            if (label2El) label2El.textContent = 'LOUNGES';
+            
+            let clientName = 'Exclusive VIP Member';
+            const matchName = message.match(/Welcome (.*?)!/);
+            if (matchName && matchName[1]) {
+                clientName = matchName[1];
+            }
+            if (movieTitleEl) movieTitleEl.textContent = clientName;
+            if (showtimeEl) showtimeEl.textContent = 'Access: Unlocked';
+            if (seatsEl) seatsEl.textContent = 'All Lounges & Screenings';
+            
+            const vipCode = `NM-VIP-${Math.floor(100000 + Math.random() * 900000)}`;
+            if (codeEl) codeEl.textContent = vipCode;
+            if (scanLabelEl) scanLabelEl.textContent = 'SCAN AT LOUNGE TO ENTER';
+        }
+
+        // Generate QR code
         if (typeof QRious !== 'undefined' && qrCanvas) {
             try {
-                new QRious({
-                    element: qrCanvas,
-                    value: JSON.stringify({
+                let qrValue = {};
+                if (ticketData) {
+                    qrValue = {
                         ref: ticketData.refCode,
                         movie: ticketData.movieTitle,
                         showtime: ticketData.showtime,
                         seats: ticketData.seats
-                    }),
+                    };
+                } else {
+                    qrValue = {
+                        passType: 'VIP_CLUB',
+                        code: codeEl.textContent,
+                        message: 'VIP Membership Activated successfully'
+                    };
+                }
+
+                new QRious({
+                    element: qrCanvas,
+                    value: JSON.stringify(qrValue),
                     size: 260,
-                    background: '#1c1c21',
+                    background: '#121216',
                     foreground: '#f5841f',
                     level: 'H'
                 });
@@ -1711,54 +1850,32 @@ function showToast(message, ticketData = null) {
             }
         }
     } else {
-        // Fallback VIP membership/General notification card
-        if (categoryEl) categoryEl.textContent = 'VIP CLUB DIGITAL PASS';
-        if (movieTitleEl) movieTitleEl.textContent = 'Exclusive VIP Member';
-        
-        // Clean up message for a cleaner layout if it's too long
-        let cleanMsg = message;
-        if (message.includes('Welcome') && message.includes('activated')) {
-            const matchName = message.match(/Welcome (.*?)!/);
-            if (matchName && matchName[1]) {
-                if (movieTitleEl) movieTitleEl.textContent = matchName[1];
-                cleanMsg = 'VIP Membership is now activated.';
-            }
+        // --- Compact Lightweight Alert Notification View ---
+        toast.classList.add('compact');
+        duration = 3500; // Shorter display time for light alerts
+
+        if (message.includes('Added')) {
+            if (toastTitleEl) toastTitleEl.textContent = 'Added to Basket';
+        } else if (message.includes('alert activated') || message.includes('Release alert')) {
+            if (toastTitleEl) toastTitleEl.textContent = 'Alert Activated';
+        } else if (message.includes('Cancelled')) {
+            if (toastTitleEl) toastTitleEl.textContent = 'Alert Cancelled';
+        } else {
+            if (toastTitleEl) toastTitleEl.textContent = 'Notification';
         }
 
-        if (showtimeEl) showtimeEl.textContent = 'Access: Unlocked';
-        if (seatsEl) seatsEl.textContent = 'All Lounges & Screenings';
-        
-        const vipCode = `NM-VIP-${Math.floor(100000 + Math.random() * 900000)}`;
-        if (codeEl) codeEl.textContent = vipCode;
-        if (scanLabelEl) scanLabelEl.textContent = 'SCAN AT LOUNGE TO ENTER';
-
-        // Generate dynamic QR for the VIP card
-        if (typeof QRious !== 'undefined' && qrCanvas) {
-            try {
-                new QRious({
-                    element: qrCanvas,
-                    value: JSON.stringify({
-                        passType: 'VIP_CLUB',
-                        code: vipCode,
-                        message: cleanMsg
-                    }),
-                    size: 260,
-                    background: '#1c1c21',
-                    foreground: '#f5841f',
-                    level: 'H'
-                });
-            } catch (err) {
-                console.error('QR generation failed:', err);
-            }
+        if (toastDescEl) {
+            // strip out markdown formatting if present
+            toastDescEl.innerHTML = message.replace(/\*\*/g, '');
         }
     }
-    
+
     // Show toast
     toast.classList.add('show');
 
-    // Subtle GSAP 3D Flip Animation with an elastic spring for tactile Apple Wallet effect
+    // Subtle GSAP 3D Flip Animation with an elastic spring for tactile Apple Wallet effect (only if showing ticket card)
     const ticketCard = toast.querySelector('.ticket-card');
-    if (ticketCard && typeof gsap !== 'undefined') {
+    if (showTicketCard && ticketCard && typeof gsap !== 'undefined') {
         gsap.killTweensOf(ticketCard);
         gsap.fromTo(ticketCard, 
             { 
@@ -1854,8 +1971,26 @@ function setupFoodMenu() {
     const checkoutBtn = document.getElementById('food-checkout-btn');
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', () => {
-            if (Object.keys(AppState.foodCart).length === 0) return;
-            showToast("Snack order confirmed! Prepare to collect at the counter.");
+            const cartKeys = Object.keys(AppState.foodCart);
+            if (cartKeys.length === 0) return;
+
+            const cartItems = cartKeys.map(id => AppState.foodCart[id]);
+            const itemsSummary = cartItems.map(item => `${item.qty}x ${item.name.replace('Salted ', '').replace('Gourmet ', '')}`).join(', ');
+            
+            let totalAmount = 0;
+            cartItems.forEach(item => {
+                totalAmount += item.price * item.qty;
+            });
+
+            const snackTicketData = {
+                type: 'snack',
+                movieTitle: 'SnackBar & Gourmet Order',
+                showtime: itemsSummary,
+                seats: `K ${totalAmount.toFixed(2)}`,
+                refCode: `NM-SNK-${Math.floor(100000 + Math.random() * 900000)}`
+            };
+
+            showToast("Snack order confirmed! Prepare to collect at the counter.", snackTicketData);
             AppState.foodCart = {};
             updateFoodCartUI();
         });
@@ -1866,95 +2001,23 @@ function setupFoodMenu() {
 function getFoodIllustrationHTML(itemId) {
     switch (itemId) {
         case 'pop-reg':
+            return `<img src="assets/Icons/Salted Popcorn (Regular) - Copy.png" alt="Regular Popcorn" loading="lazy" decoding="async" />`;
         case 'pop-large':
-            return `
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M30 45 L35 85 L65 85 L70 45 Z" />
-                    <line x1="40" y1="45" x2="42" y2="85" />
-                    <line x1="50" y1="45" x2="50" y2="85" />
-                    <line x1="60" y1="45" x2="58" y2="85" />
-                    <path d="M26 45 Q28 35 34 38 Q38 30 46 34 Q50 24 58 32 Q66 26 70 36 Q74 38 74 45" />
-                    <path d="M32 40 Q38 32 44 38" />
-                    <path d="M48 34 Q54 28 62 36" />
-                    <path d="M58 38 Q64 30 68 40" />
-                </svg>
-            `;
+            return `<img src="assets/Icons/Salted Popcorn (Large).png" alt="Large Popcorn" loading="lazy" decoding="async" />`;
         case 'nachos':
-            return `
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 70 L25 82 L75 82 L80 70 Z" />
-                    <polygon points="30,70 45,45 50,68" />
-                    <polygon points="40,70 55,40 65,65" />
-                    <polygon points="50,70 65,48 72,70" />
-                    <polygon points="28,70 38,55 48,70" />
-                    <circle cx="50" cy="74" r="7" />
-                    <path d="M46 72 Q50 75 54 72" />
-                </svg>
-            `;
+            return `<img src="assets/Icons/Gourmet Cheese Nachos.png" alt="Gourmet Nachos" loading="lazy" decoding="async" />`;
         case 'hotdog':
-            return `
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M28 40 Q20 40 25 58 Q30 75 48 70" />
-                    <path d="M72 40 Q80 40 75 58 Q70 75 52 70" />
-                    <rect x="36" y="32" width="28" height="42" rx="14" transform="rotate(-15 50 50)" />
-                    <path d="M45 38 Q48 46 43 52 Q48 58 45 66" />
-                </svg>
-            `;
+            return `<img src="assets/Icons/Classic Beef Hot Dog.png" alt="Beef Hot Dog" loading="lazy" decoding="async" />`;
         case 'pizza':
-            return `
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="50,85 25,35 75,35" />
-                    <path d="M23 35 Q50 28 77 35" />
-                    <circle cx="48" cy="48" r="4" />
-                    <circle cx="60" cy="58" r="3.5" />
-                    <circle cx="38" cy="54" r="4.5" />
-                    <circle cx="50" cy="70" r="3.5" />
-                </svg>
-            `;
+            return `<img src="assets/Icons/Margherita Pizza Slice.png" alt="Pizza Slice" loading="lazy" decoding="async" />`;
         case 'fries':
-            return `
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M32 55 L36 82 L64 82 L68 55 Z" />
-                    <path d="M32 55 Q50 62 68 55" />
-                    <rect x="36" y="30" width="5" height="30" rx="1" />
-                    <rect x="43" y="24" width="5" height="36" rx="1" />
-                    <rect x="50" y="28" width="5" height="32" rx="1" />
-                    <rect x="57" y="22" width="5" height="38" rx="1" />
-                    <rect x="64" y="32" width="4" height="28" rx="1" />
-                    <rect x="39" y="34" width="5" height="28" rx="1" transform="rotate(-10 39 34)" />
-                    <rect x="54" y="30" width="5" height="30" rx="1" transform="rotate(12 54 30)" />
-                </svg>
-            `;
+            return `<img src="assets/Icons/Premium Loaded Fries.png" alt="Loaded Fries" loading="lazy" decoding="async" />`;
         case 'soda':
-            return `
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="55" y1="20" x2="68" y2="20" />
-                    <path d="M55 20 L48 35 L48 40" />
-                    <rect x="32" y="38" width="36" height="5" rx="2.5" />
-                    <path d="M36 43 L40 85 L60 85 L64 43 Z" />
-                    <path d="M42 62 Q50 68 58 62" />
-                </svg>
-            `;
+            return `<img src="assets/Icons/Craft Soda Cola.png" alt="Craft Soda" loading="lazy" decoding="async" />`;
         case 'slushy':
-            return `
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M62 18 L50 40" />
-                    <path d="M32 45 C32 26 68 26 68 45 Z" />
-                    <path d="M34 45 L38 85 L62 85 L66 45 Z" />
-                    <path d="M42 55 Q50 50 58 55" />
-                    <path d="M38 68 Q50 63 62 68" />
-                </svg>
-            `;
+            return `<img src="assets/Icons/Wild Berry Slushy.png" alt="Wild Berry Slushy" loading="lazy" decoding="async" />`;
         case 'water':
-            return `
-                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="44" y="22" width="12" height="6" rx="1" />
-                    <path d="M42 28 L58 28 L56 36 L44 36 Z" />
-                    <path d="M36 36 C36 36 34 42 34 50 C34 58 36 60 36 60 L36 82 C36 85 38 87 41 87 L59 87 C62 87 64 85 64 82 L64 60 C64 60 66 58 66 50 C66 42 64 36 64 36 Z" />
-                    <rect x="34" y="52" width="32" height="15" />
-                    <line x1="40" y1="60" x2="60" y2="60" />
-                </svg>
-            `;
+            return `<img src="assets/Icons/Mineral Water.png" alt="Mineral Water" loading="lazy" decoding="async" />`;
         default:
             return `
                 <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -2733,5 +2796,172 @@ function setupSeatGridZoomAndPan() {
             seatGridTranslateY = 0;
             updateTransform(true);
         });
+    }
+}
+
+// Add drag / swipe support to Hero Showcase
+function setupHeroDragGestures() {
+    const showcase = document.getElementById('hero-showcase');
+    if (!showcase) return;
+
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
+    let threshold = 50; // pixels to swipe/drag to transition
+
+    // Touch events for mobile swiping
+    showcase.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) return; // ignore multi-touch
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isDragging = true;
+    }, { passive: true });
+
+    showcase.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        
+        const diffX = currentX - startX;
+        const diffY = currentY - startY;
+
+        // If the swipe is primarily vertical, cancel dragging to let user scroll naturally
+        if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 10) {
+            isDragging = false;
+        }
+    }, { passive: true });
+
+    showcase.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        const endX = e.changedTouches[0].clientX;
+        const diffX = startX - endX;
+
+        if (Math.abs(diffX) > threshold) {
+            triggerHeroSwipe(diffX > 0 ? 1 : -1);
+        }
+    });
+
+    // Mouse events for desktop dragging
+    showcase.addEventListener('mousedown', (e) => {
+        // Only trigger if clicking directly or on non-interactive elements
+        const tagName = e.target.tagName.toLowerCase();
+        if (tagName === 'button' || tagName === 'a' || e.target.closest('.hero-actions') || e.target.closest('.slider-control-dock') || e.target.closest('.user-profile') || e.target.closest('.search-wrapper')) {
+            return;
+        }
+        startX = e.clientX;
+        startY = e.clientY;
+        isDragging = true;
+        showcase.style.cursor = 'grabbing';
+    });
+
+    showcase.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const diffX = e.clientX - startX;
+        const diffY = e.clientY - startY;
+        if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 15) {
+            isDragging = false;
+            showcase.style.cursor = '';
+        }
+    });
+
+    const endDrag = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        showcase.style.cursor = '';
+        const endX = e.clientX;
+        const diffX = startX - endX;
+
+        if (Math.abs(diffX) > threshold) {
+            triggerHeroSwipe(diffX > 0 ? 1 : -1);
+        }
+    };
+
+    showcase.addEventListener('mouseup', endDrag);
+    showcase.addEventListener('mouseleave', endDrag);
+
+    function triggerHeroSwipe(direction) {
+        if (AppState.heroMovies.length === 0) return;
+
+        // direction: 1 = swipe left (next), -1 = swipe right (prev)
+        if (direction === 1) {
+            AppState.heroIndex = (AppState.heroIndex + 1) % AppState.heroMovies.length;
+        } else {
+            AppState.heroIndex = (AppState.heroIndex - 1 + AppState.heroMovies.length) % AppState.heroMovies.length;
+        }
+
+        renderHeroSlide(AppState.heroIndex, direction);
+        updateHeroIndicators();
+        initializeHeroRotatorInterval();
+    }
+}
+
+// Reusable momentum-based smooth click-and-drag scroll helper for desktop sliders
+function makeElementDraggableToScroll(el) {
+    if (!el) return;
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let velocity = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let animationFrameId;
+
+    el.addEventListener('mousedown', (e) => {
+        // Ignore dragging if clicking buttons or inputs
+        if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input')) return;
+        isDown = true;
+        el.classList.add('dragging-active');
+        startX = e.pageX - el.offsetLeft;
+        scrollLeft = el.scrollLeft;
+        velocity = 0;
+        lastX = e.pageX;
+        lastTime = Date.now();
+        cancelAnimationFrame(animationFrameId);
+    });
+
+    el.addEventListener('mouseleave', () => {
+        if (!isDown) return;
+        isDown = false;
+        el.classList.remove('dragging-active');
+        applyMomentum();
+    });
+
+    el.addEventListener('mouseup', () => {
+        if (!isDown) return;
+        isDown = false;
+        el.classList.remove('dragging-active');
+        applyMomentum();
+    });
+
+    el.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - el.offsetLeft;
+        const walk = (x - startX) * 1.5; // Drag speed multiplier
+        el.scrollLeft = scrollLeft - walk;
+
+        const now = Date.now();
+        const elapsed = now - lastTime;
+        if (elapsed > 0) {
+            const currentX = e.pageX;
+            const deltaX = currentX - lastX;
+            velocity = deltaX / elapsed;
+            lastX = currentX;
+            lastTime = now;
+        }
+    });
+
+    function applyMomentum() {
+        if (Math.abs(velocity) < 0.08) return;
+        
+        function step() {
+            el.scrollLeft -= velocity * 12;
+            velocity *= 0.94; // Friction deceleration
+            if (Math.abs(velocity) > 0.05) {
+                animationFrameId = requestAnimationFrame(step);
+            }
+        }
+        animationFrameId = requestAnimationFrame(step);
     }
 }

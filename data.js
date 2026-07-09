@@ -1,8 +1,8 @@
 const MOVIE_DATA = [
   {
-    "title": "Cocktail 2",
-    "rating": "",
-    "image": "image_resized_files/7063-1-3-2-1781256389.jpg",
+    "title": "Avatar",
+    "rating": "PG-13",
+    "image": "src/assets/images/regenerated_image_1783625278783.jpg",
     "schedule": [
       {
         "date": "2026-07-01",

@@ -161,14 +161,11 @@
             </div>
         </div>
 
-        <!-- Unified Slider Control Dock -->
-        <div class="slider-control-dock">
-            <button class="hero-nav-arrow prev" id="hero-prev" aria-label="Previous Slide"><i data-lucide="chevron-left"></i></button>
-            <div class="hero-indicators" id="hero-indicators">
-                <!-- Dynamically rendered indicator dots -->
-            </div>
-            <button class="hero-nav-arrow next" id="hero-next" aria-label="Next Slide"><i data-lucide="chevron-right"></i></button>
-        </div>
+        <!-- Side Navigation Arrows placed at vertical middle, far left and far right -->
+        <button class="hero-nav-arrow prev" id="hero-prev" aria-label="Previous Slide"><i data-lucide="chevron-left"></i></button>
+        <button class="hero-nav-arrow next" id="hero-next" aria-label="Next Slide"><i data-lucide="chevron-right"></i></button>
+
+
 
         <!-- Scroll down indicator -->
         <div class="hero-scroll-down" id="hero-scroll-down">
@@ -480,6 +477,12 @@
                             </div>
                         </div>
 
+                        <!-- Dynamic Real-Time Subtotal Panel -->
+                        <div class="booking-subtotal-panel" id="booking-subtotal-panel">
+                            <span class="subtotal-label">Selected Seats Subtotal</span>
+                            <span class="subtotal-amount" id="subtotal-amount-display">K 0.00</span>
+                        </div>
+
                         <div class="selected-seats-list-wrapper">
                             <h4>Selected Seats</h4>
                             <div class="selected-seats-tags" id="selected-seats-container">
@@ -627,8 +630,8 @@
             <div class="toast-header-left">
                 <i data-lucide="check-circle" class="toast-icon"></i>
                 <div class="toast-text">
-                    <div class="toast-title">Booking Confirmed!</div>
-                    <div class="toast-desc">Scan-ready digital ticket</div>
+                    <div class="toast-title" id="toast-title">Booking Confirmed!</div>
+                    <div class="toast-desc" id="toast-desc">Scan-ready digital ticket</div>
                 </div>
             </div>
         </div>
@@ -641,11 +644,11 @@
                     <h4 class="ticket-movie-title" id="ticket-movie-title">Movie Title</h4>
                     <div class="ticket-meta-grid">
                         <div class="ticket-meta-item">
-                            <span class="ticket-label">SHOWTIME</span>
+                            <span class="ticket-label" id="ticket-label-1">SHOWTIME</span>
                             <span class="ticket-value" id="ticket-showtime">--:-- | Cinema 1</span>
                         </div>
                         <div class="ticket-meta-item">
-                            <span class="ticket-label">SEATS</span>
+                            <span class="ticket-label" id="ticket-label-2">SEATS</span>
                             <span class="ticket-value" id="ticket-seats">None Selected</span>
                         </div>
                     </div>

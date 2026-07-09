@@ -452,7 +452,26 @@
                 }
             } catch (err) {
                 console.error(err);
-                errorMsg.textContent = err.message;
+                
+                // Provide beautiful, detailed error guidance for domain whitelisting if Firebase auth throws unauthorized domain
+                if (err.code === 'auth/unauthorized-domain' || (err.message && (err.message.includes('unauthorized-domain') || err.message.includes('unauthorized domain')))) {
+                    errorMsg.innerHTML = `
+                        <div style="font-weight: 600; margin-bottom: 0.5rem; color: #ff8e2b; display: flex; align-items: center; gap: 0.4rem;">
+                            <i data-lucide="shield-alert" style="width: 16px; height: 16px;"></i> Firebase Auth Domain Whitelist Required
+                        </div>
+                        <p style="margin: 0 0 0.5rem 0; line-height: 1.4;">The current domain <strong>${window.location.hostname}</strong> is not authorized to use Firebase Authentication. You must add it in your Firebase Console:</p>
+                        <ol style="margin: 0; padding-left: 1.2rem; line-height: 1.4;">
+                            <li>Go to the <a href="https://console.firebase.google.com/project/${config.projectId || 'distributed-bond-hd2jw'}/authentication/settings" target="_blank" style="color: var(--color-brand); text-decoration: underline; font-weight: 500;">Firebase Console Authentication Settings</a>.</li>
+                            <li>Select the <strong>Settings</strong> tab, then click on <strong>Authorized domains</strong>.</li>
+                            <li>Click <strong>Add domain</strong> and enter: <code style="background: rgba(255,255,255,0.1); padding: 0.1rem 0.3rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem;">${window.location.hostname}</code></li>
+                        </ol>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.75rem; opacity: 0.7;"><em>Note: Club Member profiles and local bookings will continue to function seamlessly using local offline fallback mode in the meantime.</em></p>
+                    `;
+                    if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+                } else {
+                    errorMsg.textContent = err.message;
+                }
+                
                 errorMsg.style.display = 'block';
                 submitBtn.disabled = false;
                 submitBtn.textContent = activeTab === 'login' ? 'Sign In to Club' : 'Create Loyalty Account';
